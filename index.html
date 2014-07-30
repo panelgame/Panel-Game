@@ -1,0 +1,293 @@
+<html>
+	<head>
+		<script src="processing-1.4.1.js"></script>
+		<script type="text/processing" data-processing-target="mycanvas">
+			
+			var panel;
+			var caught;
+			var hitSmog;
+			var score = 0;
+			var smogCount = 0;
+			var startButton
+			var photons = [];
+			var smogClouds = [];
+			var lightSize = 15;
+			var lightSpeed = 4;
+			var yPositionLight = 0 - (lightSize * 7.5);
+			//var shattered = new Shatter(startButton, 10);
+			
+			
+			void setup(){
+				startButton = new StartButton(590,350,400,400,[255,255,0]);
+				panel = new Panel (mouseX - 125,670,250,25,[0,0,0]);			  
+				size(1180,700);
+				background(83,203,224);
+				fill(0, 255, 60);
+				noStroke();
+				ellipse(1092, 613, 1487, 457);
+				ellipse(224, 655, 947, 378);
+				
+
+			  
+			}
+			void draw(){  
+				var xPositionLight;
+				var yPositionLight;
+				var caught;
+				//background
+				background(83,203,224);
+				fill(0, 255, 60);
+				noStroke();
+				ellipse(1092, 613, 1487, 457);
+				ellipse(224, 655, 947, 378);
+				
+				//panel
+				panel.drawPanel();
+				panel.movePanel();
+				
+				//light
+				
+				var r = Math.random();
+				if(r < 0.015){
+					photons.push(new Photon(Math.random() * 1178));
+				}
+				for (var i = 0; i < photons.length; i++){
+					xPositionLight = photons[i].getX();
+					yPositionLight = photons[i].getY();
+					caught = photons[i].getCaught();
+					if(xPositionLight + lightSize * 1.5 >= mouseX - 125 && xPositionLight + lightSize * 1.5 <= mouseX + 125 && yPositionLight + lightSize * 7.2 >= 670 && yPositionLight + lightSize * 7.2 <= 710)
+					{
+						score = score + 1;
+						console.log(score);
+						caught = true;
+						photons[i].setCaught(caught);
+						yPositionLight = yPositionLight + 500;
+						photons[i].setYPositionLight(yPositionLight);
+					}
+					if (caught == false){
+						photons[i].drawPhoton();
+						
+					}
+					photons[i].movePhoton();
+				}		
+				
+				//smog
+				var r = Math.random();
+				if(r > 0.992){
+					smogClouds.push(new smog(Math.random() * 1180));
+				}
+				for (var i = 0; i < smogClouds.length; i++){
+					xPositionSmog = smogClouds[i].getXSmog();
+					yPositionSmog = smogClouds[i].getYSmog();
+					hitSmog = smogClouds[i].getHitSmog();
+					if (xPositionSmog > mouseX - 201 && xPositionSmog < mouseX + 144 & yPositionSmog > 638 && yPositionSmog < 695){
+						hitSmog = true;
+						console.log("SMOG");
+						smogClouds[i].setHitSmog(hitSmog);
+						yPositionSmog = yPositionSmog + 500;
+						smogClouds[i].setYPositionSmog(yPositionSmog);
+						smogCount = smogCount + 1;
+						console.log(smogCount);
+						}
+					if (hitSmog == false){
+						smogClouds[i].drawSmog();
+					}
+					smogClouds[i].moveSmog();
+				}
+				
+				//startButton.drawStartButton();
+				//startButton.drawStartButton();
+				//startButton=true;
+				
+					/*if(mousePressed == true) {
+						startButton = false;
+						shattered;
+						x = 500000
+					}*/
+
+				
+			}
+
+			
+			
+			class Panel{
+					var xPositionPanel;
+					var yPositionPanel;
+					var width;
+					var height;
+					var r;
+					var g;
+					var b;
+     
+					Panel(x,y,w,h,color){
+						xPositionPanel= x;
+						yPositionPanel=y;
+						r=color[0];
+						g=color[1];
+						b=color[2];
+						width=w;
+						height=h;
+					}
+					
+					void drawPanel(){
+						noStroke();
+						fill(r,g,b);
+						rect(xPositionPanel, yPositionPanel, width, height);
+					}
+					
+					void movePanel(){
+						xPositionPanel=mouseX - 125;
+					}
+				}
+			
+			class StartButton {	
+				var xPositionStartButton;
+				var yPositionStartButton;
+				var width;
+				var height;
+				var r;
+				var g;
+				var b;
+			
+				StartButton(x,y,w,h,color){
+					xPositionStartButton= x;
+					yPositionStartButton=y;
+					r=color[0];
+					g=color[1];
+					b=color[2];
+					width=w;
+					height=h;
+				}
+				
+				void drawStartButton(){
+					font = loadFont("ASMAN.ttf"); 
+					textFont(font); 
+					fill(r, g, b);
+					ellipse(xPositionStartButton,yPositionStartButton,width,height);
+					fill(255,100,43);
+					textSize(60);
+					text("Press", 510, 320);
+					text("'SPACE BAR'", 415, 370);
+					text("TO START!", 435, 420);
+
+				}
+			}
+			
+			
+			
+			//PHOTONS
+			
+			
+			class Photon {
+				var xPositionLight;
+				var yPositionLight;
+				var caught;
+				
+				Photon(newX){
+					xPositionLight=newX;
+					caught = false;
+				}
+				
+				void drawPhoton(){
+					noFill();
+					beginShape();
+					stroke(255, 255, 0);
+					strokeWeight(lightSize/1.3);
+					curveVertex(1 * lightSize + xPositionLight, 0 * lightSize + yPositionLight);
+					curveVertex(2 * lightSize + xPositionLight, 1 * lightSize + yPositionLight);
+					curveVertex(1 * lightSize + xPositionLight, 2 * lightSize + yPositionLight);
+					curveVertex(2 * lightSize + xPositionLight, 3 * lightSize + yPositionLight);
+					curveVertex(1 * lightSize + xPositionLight, 4 * lightSize + yPositionLight);
+					curveVertex(2 * lightSize + xPositionLight, 5 * lightSize + yPositionLight);
+					curveVertex(1 * lightSize + xPositionLight, 6 * lightSize + yPositionLight);
+					curveVertex(2 * lightSize + xPositionLight, 7 * lightSize + yPositionLight);
+					endShape();
+					strokeWeight(1);
+					fill(255, 255, 0);
+					triangle(lightSize * 2.5 + xPositionLight,lightSize * 6.66 - lightSize + yPositionLight,lightSize*1.5 + xPositionLight,lightSize * 8.33 - lightSize + yPositionLight,lightSize/3 + xPositionLight,lightSize * 6.66 - lightSize + yPositionLight);
+				}
+				
+				void movePhoton (){
+					yPositionLight = yPositionLight + lightSpeed;
+					
+				}
+				void getX(){
+					return xPositionLight;
+				}
+				void getY(){
+					return yPositionLight;
+				}
+				void getCaught(){
+					return caught;
+				}
+				void setCaught(caught){
+					caught = true;
+				}
+				void setYPositionLight(newY){
+					yPositionLight = newY;
+				}
+			}
+			
+			
+			//SMOG
+			
+			
+			
+			class smog {
+				var xPositionSmog;
+				var yPositionSmog;
+				var hitSmog;
+				
+				smog(newX){
+					xPositionSmog=newX;
+					hitSmog = false;
+				}
+				
+				void drawSmog(){
+					fill(136, 126, 143);
+					noStroke();
+					ellipse(xPositionSmog, yPositionSmog, 30, 50);
+					ellipse(xPositionSmog + 61, yPositionSmog + 4, 30, 40);
+					ellipse(xPositionSmog + 26, yPositionSmog, 30, 60);
+					ellipse(xPositionSmog - 4, yPositionSmog, 30, 20);
+					ellipse(xPositionSmog + 47, yPositionSmog - 10, 30, 50);
+					ellipse(xPositionSmog + 42, yPositionSmog + 6, 20, 50);
+					ellipse(xPositionSmog + 12, yPositionSmog - 6, 20, 50);
+					}
+				
+				void moveSmog (){
+					yPositionSmog = yPositionSmog + 4;
+				}
+				void getXSmog(){
+					return xPositionSmog;
+				}
+				void getYSmog(){
+					return yPositionSmog;
+				}
+				void getHitSmog(){
+					return hitSmog;
+				}
+				void setHitSmog(hitSmog){
+					hitSmog = true;
+				}
+				void setYPositionSmog(newY){
+					yPositionSmog = newY;
+				}
+				
+				
+			}
+			
+			
+			
+			
+			
+			
+			
+			
+		</script>
+	</head>
+	<body>
+		<canvas id="mycanvas"></canvas>
+	</body>
+</html>
+
